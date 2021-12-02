@@ -11,8 +11,9 @@ public interface CacheProvider<T> {
      * 缓存认证信息
      *
      * @param cacheInfo 缓存信息
+     * @return 返回与缓存信息关联的key
      */
-    void doCache(T cacheInfo);
+    T doCache(T cacheInfo);
 
     /**
      * 获取缓存信息

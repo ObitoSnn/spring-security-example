@@ -22,10 +22,11 @@ public class RedisCacheProviderImpl implements CacheProvider<String> {
     private RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public void doCache(String cacheInfo) {
+    public String doCache(String cacheInfo) {
         String username = TokenUtil.getInfoByToken(cacheInfo);
         String key = username + TOKEN_SEPARATOR + cacheInfo;
         redisTemplate.opsForValue().set(key, cacheInfo);
+        return username;
     }
 
     @Override
