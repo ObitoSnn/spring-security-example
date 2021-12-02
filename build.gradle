@@ -1,0 +1,41 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.2.1.RELEASE'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.obitosnn'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+
+repositories {
+	mavenLocal()
+	maven {
+		url "https://maven.aliyun.com/repository/public"
+	}
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	compileOnly 'org.projectlombok:lombok'
+	// 解决lombok找不到getter、setter编译报错
+	annotationProcessor 'org.projectlombok:lombok'
+	implementation 'mysql:mysql-connector-java'
+	implementation 'com.alibaba:druid-spring-boot-starter:1.2.6'
+	implementation 'com.baomidou:mybatis-plus-boot-starter:3.4.1'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'cn.hutool:hutool-all:5.7.5'
+	implementation 'com.alibaba:fastjson:1.2.75'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	implementation 'com.github.xiaoymin:knife4j-spring-boot-starter:2.0.7'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+}
+
+test {
+	useJUnitPlatform()
+}
