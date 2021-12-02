@@ -3,6 +3,7 @@ package com.obitosnn.config.security.authentication.cache.impl;
 import cn.hutool.core.util.ObjectUtil;
 import com.obitosnn.config.security.authentication.cache.CacheProvider;
 import com.obitosnn.util.TokenUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author ObitoSnn
  */
+@Slf4j
 @Component
 public class RedisCacheProviderImpl implements CacheProvider<String> {
     @Autowired
@@ -27,6 +29,7 @@ public class RedisCacheProviderImpl implements CacheProvider<String> {
         String username = TokenUtil.getInfoByToken(cacheInfo);
         String key = username + TOKEN_SEPARATOR + cacheInfo;
         redisTemplate.opsForValue().set(key, cacheInfo, TokenUtil.DEFAULT_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+        log.debug(String.format("用户'%s'的token已缓存", username));
         return username;
     }
 
@@ -41,6 +44,9 @@ public class RedisCacheProviderImpl implements CacheProvider<String> {
             String cachedToken = keys.toArray(new String[0])[0];
             result = cachedToken.substring(cachedToken.indexOf(TOKEN_SEPARATOR) + TOKEN_SEPARATOR.length());
         }
+        if (ObjectUtil.isNotEmpty(result)) {
+            log.debug(String.format("获取用户'%s'的token: %s", key, result));
+        }
         return result;
     }
 
@@ -54,6 +60,7 @@ public class RedisCacheProviderImpl implements CacheProvider<String> {
             throw new RuntimeException(msg);
         }
         redisTemplate.opsForValue().set(key, update, TokenUtil.DEFAULT_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+        log.debug(String.format("用户'%s'的token已更新", username));
     }
 
     @Override
@@ -65,6 +72,7 @@ public class RedisCacheProviderImpl implements CacheProvider<String> {
         for (String s : keys) {
             if (s.contains(key)) {
                 redisTemplate.delete(s);
+                log.debug(String.format("用户'%s'的token已删除", key));
                 return;
             }
         }
