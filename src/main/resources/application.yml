@@ -16,9 +16,6 @@ spring:
     username: root
     password: 333
     url: jdbc:mysql://localhost:3306/spring-security-demo?characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8
-  redis:
-    host: 10.17.208.40
-    port: 6379
 
 mybatis-plus:
   configuration:
