@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 使用redis做缓存
@@ -25,7 +26,7 @@ public class RedisCacheProviderImpl implements CacheProvider<String> {
     public String doCache(String cacheInfo) {
         String username = TokenUtil.getInfoByToken(cacheInfo);
         String key = username + TOKEN_SEPARATOR + cacheInfo;
-        redisTemplate.opsForValue().set(key, cacheInfo);
+        redisTemplate.opsForValue().set(key, cacheInfo, TokenUtil.DEFAULT_EXPIRE_TIME, TimeUnit.MILLISECONDS);
         return username;
     }
 
@@ -52,7 +53,7 @@ public class RedisCacheProviderImpl implements CacheProvider<String> {
             String msg = String.format("预期值不存在,用户'%s'的token未缓存", username);
             throw new RuntimeException(msg);
         }
-        redisTemplate.opsForValue().set(key, update);
+        redisTemplate.opsForValue().set(key, update, TokenUtil.DEFAULT_EXPIRE_TIME, TimeUnit.MILLISECONDS);
     }
 
     @Override
