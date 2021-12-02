@@ -54,7 +54,7 @@ public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessH
             }
         }
         response.setHeader(X_ACCESS_TOKEN, token);
-        Result<?> result = Result.OK(MapUtil.of("token", token));
+        Result<?> result = Result.ok(MapUtil.of("token", token));
 
         String content = JSONUtil.parse(result).toString();
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);

@@ -22,13 +22,13 @@ public class Result<T> implements Serializable {
     private Result() {
     }
 
-    public static <T> Result<T> OK() {
+    public static <T> Result<T> ok() {
         Result<T> r = new Result<>();
         r.setMessage("操作成功");
         return r;
     }
 
-    public static <T> Result<T> OK(T result) {
+    public static <T> Result<T> ok(T result) {
         Result<T> r = new Result<>();
         r.setMessage("操作成功");
         r.setResult(result);

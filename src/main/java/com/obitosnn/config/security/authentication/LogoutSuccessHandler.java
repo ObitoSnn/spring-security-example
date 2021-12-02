@@ -28,7 +28,7 @@ public class LogoutSuccessHandler implements org.springframework.security.web.au
 
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
 
-        String content = JSONUtil.parseObj(Result.OK("登出成功")).toString();
+        String content = JSONUtil.parseObj(Result.ok("登出成功")).toString();
 
         response.getWriter().write(content);
     }
