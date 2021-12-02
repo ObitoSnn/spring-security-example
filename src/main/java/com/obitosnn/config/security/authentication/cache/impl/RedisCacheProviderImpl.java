@@ -16,10 +16,10 @@ import java.util.Set;
  */
 @Component
 public class RedisCacheProviderImpl implements CacheProvider<String> {
-    private final String TOKEN_SEPARATOR = "_::_";
-    private final String WILDCARD = "*";
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+    private final String TOKEN_SEPARATOR = "_::_";
+    private final String WILDCARD = "*";
 
     @Override
     public String doCache(String cacheInfo) {
@@ -49,7 +49,8 @@ public class RedisCacheProviderImpl implements CacheProvider<String> {
         String key = username + TOKEN_SEPARATOR + expect;
         String cachedToken = (String) redisTemplate.opsForValue().get(key);
         if (ObjectUtil.isEmpty(cachedToken)) {
-            throw new RuntimeException("预期值不存在");
+            String msg = String.format("预期值不存在,用户'%s'的token未缓存", username);
+            throw new RuntimeException(msg);
         }
         redisTemplate.opsForValue().set(key, update);
     }
@@ -57,7 +58,7 @@ public class RedisCacheProviderImpl implements CacheProvider<String> {
     @Override
     public void clear(String key) {
         Set<String> keys = redisTemplate.keys(key + WILDCARD);
-        if (ObjectUtil.isEmpty(key)) {
+        if (ObjectUtil.isEmpty(keys)) {
             return;
         }
         for (String s : keys) {
