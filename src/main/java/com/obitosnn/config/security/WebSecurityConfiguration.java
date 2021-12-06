@@ -1,7 +1,8 @@
 package com.obitosnn.config.security;
 
-import com.obitosnn.config.security.authentication.HttpStatus403AccessDeniedHandler;
-import com.obitosnn.config.security.authentication.UnAuthorityEntryPoint;
+import com.obitosnn.config.security.authentication.*;
+import com.obitosnn.config.security.authentication.cache.CacheProvider;
+import com.obitosnn.config.security.filter.JwtAuthenticationFilter;
 import com.obitosnn.config.security.filter.LoginFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,6 +18,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
@@ -30,14 +35,42 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     @Qualifier("customUserDetailService")
     private UserDetailsService userDetailsService;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
-    private LogoutSuccessHandler logoutSuccessHandler;
-    @Autowired
-    private LogoutHandler logoutHandler;
-    @Autowired
-    private LoginFilter loginFilter;
+
+    private final CacheProvider<String> cacheProvider;
+
+    /**
+     * 登出Handler
+     */
+    private final LogoutSuccessHandler logoutSuccessHandler;
+    private final LogoutHandler logoutHandler;
+
+    /**
+     * 登录认证Handler
+     */
+    private final AuthenticationSuccessHandler loginAuthenticationSuccessHandler;
+    private final AuthenticationFailureHandler loginAuthenticationFailureHandler;
+
+    /**
+     * Jwt认证Handler
+     */
+    private final AuthenticationSuccessHandler jwtAuthenticationSuccessHandler;
+    private final AuthenticationFailureHandler jwtAuthenticationFailureHandler;
+
+    private final AuthenticationEntryPoint unAuthorityEntryPoint = new UnAuthorityEntryPoint();
+    private final AccessDeniedHandler httpStatus403AccessDeniedHandler = new HttpStatus403AccessDeniedHandler();
+
+    public WebSecurityConfiguration(CacheProvider<String> cacheProvider) {
+        this.cacheProvider = cacheProvider;
+        this.logoutSuccessHandler = new com.obitosnn.config.security.authentication.LogoutSuccessHandler();
+        this.logoutHandler = new com.obitosnn.config.security.authentication.LogoutHandler(cacheProvider);
+        this.loginAuthenticationSuccessHandler = new LoginAuthenticationSuccessHandler(cacheProvider);
+        this.loginAuthenticationFailureHandler = new LoginAuthenticationFailureHandler();
+        this.jwtAuthenticationSuccessHandler = new JwtAuthenticationSuccessHandler(cacheProvider);
+        this.jwtAuthenticationFailureHandler = new JwtAuthenticationFailureHandler();
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -45,8 +78,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .formLogin().disable()
                 .exceptionHandling((exceptionHandling) -> {
                     exceptionHandling
-                            .authenticationEntryPoint(new UnAuthorityEntryPoint())
-                            .accessDeniedHandler(new HttpStatus403AccessDeniedHandler());
+                            .authenticationEntryPoint(unAuthorityEntryPoint)
+                            .accessDeniedHandler(httpStatus403AccessDeniedHandler);
                 })
                 .authorizeRequests((urlRegistry) -> {
                     urlRegistry
@@ -55,7 +88,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 })
                 .csrf().disable()
                 .sessionManagement().disable()
-                .addFilter(loginFilter)
+                .addFilter(loginFilter())
                 .logout((logoutConfigurer) -> {
                     logoutConfigurer.logoutSuccessHandler(logoutSuccessHandler)
                             .addLogoutHandler(logoutHandler);
@@ -92,8 +125,22 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/v2/**");
     }
 
+    // ========================= Bean =========================
+
     @Bean("authenticationManager")
     public AuthenticationManager getAuthenticationManager() throws Exception {
         return authenticationManager();
+    }
+
+    @Bean
+    public LoginFilter loginFilter() throws Exception {
+        return new LoginFilter(getAuthenticationManager(),
+                loginAuthenticationSuccessHandler, loginAuthenticationFailureHandler);
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
+        return new JwtAuthenticationFilter(getAuthenticationManager(),
+                cacheProvider, jwtAuthenticationSuccessHandler, jwtAuthenticationFailureHandler);
     }
 }

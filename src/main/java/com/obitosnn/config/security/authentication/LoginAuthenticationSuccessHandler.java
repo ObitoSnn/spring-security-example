@@ -7,12 +7,10 @@ import com.obitosnn.config.security.authentication.cache.CacheProvider;
 import com.obitosnn.util.TokenUtil;
 import com.obitosnn.vo.Result;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -25,15 +23,17 @@ import java.io.IOException;
  * @author ObitoSnn
  */
 @Slf4j
-@Component
 public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     /**
      * 响应头
      */
     public static final String X_ACCESS_TOKEN = "X-Access-Token";
 
-    @Autowired
-    private CacheProvider<String> cacheProvider;
+    private final CacheProvider<String> cacheProvider;
+
+    public LoginAuthenticationSuccessHandler(CacheProvider<String> cacheProvider) {
+        this.cacheProvider = cacheProvider;
+    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {

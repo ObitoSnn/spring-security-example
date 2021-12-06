@@ -4,7 +4,6 @@ import cn.hutool.core.util.ObjectUtil;
 import com.obitosnn.config.security.authentication.cache.CacheProvider;
 import com.obitosnn.util.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -19,10 +18,13 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 public class RedisCacheProviderImpl implements CacheProvider<String> {
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final String TOKEN_SEPARATOR = "_::_";
     private final String WILDCARD = "*";
+
+    public RedisCacheProviderImpl(RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     @Override
     public String doCache(String cacheInfo) {

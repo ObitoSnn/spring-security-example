@@ -3,10 +3,8 @@ package com.obitosnn.config.security.authentication;
 import cn.hutool.core.util.ObjectUtil;
 import com.obitosnn.config.security.authentication.cache.CacheProvider;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,10 +15,12 @@ import javax.servlet.http.HttpServletResponse;
  * @author ObitoSnn
  */
 @Slf4j
-@Component
 public class LogoutHandler implements org.springframework.security.web.authentication.logout.LogoutHandler {
-    @Autowired
-    private CacheProvider<String> cacheProvider;
+    private final CacheProvider<String> cacheProvider;
+
+    public LogoutHandler(CacheProvider<String> cacheProvider) {
+        this.cacheProvider = cacheProvider;
+    }
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {

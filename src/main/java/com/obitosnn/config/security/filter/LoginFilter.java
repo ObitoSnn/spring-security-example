@@ -5,7 +5,6 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,7 +14,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -29,12 +27,11 @@ import java.nio.charset.StandardCharsets;
  * @author ObitoSnn
  */
 @Slf4j
-@Component
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     public LoginFilter(AuthenticationManager authenticationManager,
-                       @Qualifier("loginAuthenticationSuccessHandler") AuthenticationSuccessHandler authenticationSuccessHandler,
-                       @Qualifier("loginAuthenticationFailureHandler") AuthenticationFailureHandler authenticationFailureHandler) {
+                       AuthenticationSuccessHandler authenticationSuccessHandler,
+                       AuthenticationFailureHandler authenticationFailureHandler) {
         //拦截 /login POST
         super();
         setAuthenticationManager(authenticationManager);

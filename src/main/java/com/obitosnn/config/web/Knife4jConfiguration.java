@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @author ObitoSnn
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableSwagger2WebMvc
 public class Knife4jConfiguration {
 

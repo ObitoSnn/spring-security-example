@@ -2,14 +2,11 @@ package com.obitosnn.config.security.filter;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.jwt.signers.JWTSigner;
-import com.obitosnn.config.security.authentication.JwtAuthenticationFailureHandler;
 import com.obitosnn.config.security.authentication.JwtAuthenticationToken;
 import com.obitosnn.config.security.authentication.LoginAuthenticationSuccessHandler;
 import com.obitosnn.config.security.authentication.cache.CacheProvider;
 import com.obitosnn.util.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -20,8 +17,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -37,19 +34,18 @@ import java.io.IOException;
  * @author ObitoSnn
  */
 @Slf4j
-@Component
-@DependsOn("webSecurityConfiguration")
 public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     private final CacheProvider<String> cacheProvider;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager,
                                    CacheProvider<String> cacheProvider,
-                                   @Qualifier("jwtAuthenticationSuccessHandler") AuthenticationSuccessHandler successHandler) {
+                                   AuthenticationSuccessHandler successHandler,
+                                   AuthenticationFailureHandler failureHandler) {
         super("/**");
-        //
+        // authenticationManager不能为空
         setAuthenticationManager(authenticationManager);
         setAuthenticationSuccessHandler(successHandler);
-        setAuthenticationFailureHandler(new JwtAuthenticationFailureHandler());
+        setAuthenticationFailureHandler(failureHandler);
         this.cacheProvider = cacheProvider;
     }
 
