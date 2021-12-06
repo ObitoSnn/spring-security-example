@@ -1,7 +1,6 @@
 package com.obitosnn.config.security.authentication;
 
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.obitosnn.config.security.authentication.cache.CacheProvider;
 import com.obitosnn.util.TokenUtil;
@@ -38,14 +37,14 @@ public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessH
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         String username = ((User) authentication.getPrincipal()).getUsername();
-        String cachedToken = cacheProvider.get(username);
-
-        String token;
-        if (ObjectUtil.isNotEmpty(cachedToken)) {
+        String token = null;
+        try {
+            String cachedToken = cacheProvider.get(username);
             log.debug(String.format("用户重复登录,username: '%s'", username));
             // 不是首次登录不需要缓存token
             token = cachedToken;
-        } else {
+        } catch (Exception e) {
+            // 缓存的toke为null
             log.debug("登录认证成功, {}", authentication);
             User loginUser = (User) authentication.getPrincipal();
             token = TokenUtil.createToken(loginUser.getUsername(), TokenUtil.getSigner(loginUser.getPassword()));
@@ -53,6 +52,7 @@ public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessH
                 cacheProvider.doCache(token);
             }
         }
+
         response.setHeader(X_ACCESS_TOKEN, token);
         Result<?> result = Result.ok(MapUtil.of("token", token));
 

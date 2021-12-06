@@ -41,13 +41,15 @@ public class RedisCacheProviderImpl implements CacheProvider<String> {
         String result = null;
         if (ObjectUtil.isNotEmpty(keys)) {
             if (keys.size() > 1) {
-                throw new RuntimeException("token不唯一");
+                throw new RuntimeException(String.format("用户'%s'缓存的token不唯一", key));
             }
             String cachedToken = keys.toArray(new String[0])[0];
             result = cachedToken.substring(cachedToken.indexOf(TOKEN_SEPARATOR) + TOKEN_SEPARATOR.length());
         }
         if (ObjectUtil.isNotEmpty(result)) {
             log.debug(String.format("获取用户'%s'的token: %s", key, result));
+        } else {
+            throw new RuntimeException(String.format("用户'%s'的缓存的token已被删除", key));
         }
         return result;
     }
@@ -56,11 +58,8 @@ public class RedisCacheProviderImpl implements CacheProvider<String> {
     public void update(String expect, String update) {
         String username = TokenUtil.getInfoByToken(expect);
         String key = username + TOKEN_SEPARATOR + expect;
-        String cachedToken = (String) redisTemplate.opsForValue().get(key);
-        if (ObjectUtil.isEmpty(cachedToken)) {
-            String msg = String.format("预期值不存在,用户'%s'的token未缓存", username);
-            throw new RuntimeException(msg);
-        }
+        // 校验token是否存在
+        get(username);
         redisTemplate.opsForValue().set(key, update, TokenUtil.DEFAULT_EXPIRE_TIME, TimeUnit.MILLISECONDS);
         log.debug(String.format("用户'%s'的token已更新", username));
     }

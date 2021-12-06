@@ -112,8 +112,14 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
             throw new AuthenticationException("无权访问,请携带token再次访问") {};
         }
 
-        String contextToken = cacheProvider.get(TokenUtil.getInfoByToken(token));
-        if (ObjectUtil.isNotEmpty(contextToken) && !token.equals(contextToken)) {
+        String contextToken = null;
+        try {
+            contextToken = cacheProvider.get(TokenUtil.getInfoByToken(token));
+        } catch (Exception e) {
+            throw new AuthenticationException(e.getMessage()) {};
+        }
+
+        if (!token.equals(contextToken)) {
             throw new AuthenticationException("token无效") {};
         }
 
