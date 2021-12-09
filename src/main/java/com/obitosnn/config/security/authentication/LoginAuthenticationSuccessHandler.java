@@ -42,11 +42,9 @@ public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessH
         Object details = auth.getDetails();
         if (ObjectUtil.isNotEmpty(details)) {
             String cachedTokenKey = details.toString();
-            if (ObjectUtil.isNotEmpty(cachedTokenKey)) {
-                String cachedToken = cacheProvider.get(cachedTokenKey);
-                log.debug("用户{}重复登录", TokenUtil.getInfoByToken(cachedToken));
-                return;
-            }
+            String cachedToken = cacheProvider.get(cachedTokenKey);
+            log.debug("用户{}重复登录", TokenUtil.getInfoByToken(cachedToken));
+            return;
         }
 
         log.debug("登录认证成功, {}", authentication);
