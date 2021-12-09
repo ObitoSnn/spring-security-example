@@ -1,7 +1,6 @@
 package com.obitosnn.config.security.filter;
 
 import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -9,8 +8,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -48,13 +45,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             String content = IoUtil.read(inputStream, StandardCharsets.UTF_8);
             JSONObject jsonObject = JSONUtil.parseObj(content);
             String username = jsonObject.get("username").toString();
-
-            if (ObjectUtil.isNotEmpty(SecurityContextHolder.getContext().getAuthentication())) {
-                User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                if (ObjectUtil.isNotEmpty(loginUser) && loginUser.getUsername().equals(username)) {
-                    return SecurityContextHolder.getContext().getAuthentication();
-                }
-            }
 
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                     username, jsonObject.get("password"));
