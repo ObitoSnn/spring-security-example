@@ -6,7 +6,6 @@ import com.obitosnn.util.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +16,6 @@ import java.util.concurrent.TimeUnit;
  * @author ObitoSnn
  */
 @Slf4j
-@Component
 public class RedisCacheProviderImpl implements CacheProvider<String, String>, InitializingBean {
     private final RedisTemplate<String, Object> redisTemplate;
     private final String TOKEN_SEPARATOR = "_::_";

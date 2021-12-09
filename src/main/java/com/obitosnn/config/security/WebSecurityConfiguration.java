@@ -2,12 +2,14 @@ package com.obitosnn.config.security;
 
 import com.obitosnn.config.security.authentication.*;
 import com.obitosnn.config.security.authentication.cache.CacheProvider;
+import com.obitosnn.config.security.authentication.cache.impl.RedisCacheProviderImpl;
 import com.obitosnn.config.security.filter.JwtAuthenticationFilter;
 import com.obitosnn.config.security.filter.LoginFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -39,6 +41,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     private final CacheProvider<String, String> cacheProvider;
 
     /**
@@ -62,8 +67,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final AuthenticationEntryPoint unAuthorityEntryPoint = new UnAuthorityEntryPoint();
     private final AccessDeniedHandler httpStatus403AccessDeniedHandler = new HttpStatus403AccessDeniedHandler();
 
-    public WebSecurityConfiguration(CacheProvider<String, String> cacheProvider) {
-        this.cacheProvider = cacheProvider;
+    public WebSecurityConfiguration() {
+        this.cacheProvider = new RedisCacheProviderImpl(redisTemplate);
         this.logoutSuccessHandler = new com.obitosnn.config.security.authentication.LogoutSuccessHandler();
         this.logoutHandler = new com.obitosnn.config.security.authentication.LogoutHandler(cacheProvider);
         this.loginAuthenticationSuccessHandler = new LoginAuthenticationSuccessHandler(cacheProvider);
