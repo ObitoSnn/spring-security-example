@@ -1,10 +1,9 @@
 package com.obitosnn.config.security.authentication;
 
-import cn.hutool.json.JSONUtil;
+import com.obitosnn.util.ResponseOutputUtil;
 import com.obitosnn.vo.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
@@ -25,9 +24,6 @@ public class JwtAuthenticationFailureHandler implements AuthenticationFailureHan
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         log.debug("Jwt认证失败, {}", exception.getMessage());
 
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-        String content = JSONUtil.parseObj(Result.error(exception.getMessage())).toString();
-        response.getWriter().write(content);
+        ResponseOutputUtil.output(response, Result.error("操作失败", HttpStatus.UNAUTHORIZED.value(), exception.getMessage()));
     }
 }

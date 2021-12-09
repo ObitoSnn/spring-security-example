@@ -1,10 +1,9 @@
 package com.obitosnn.config.security.authentication;
 
-import cn.hutool.json.JSONUtil;
+import com.obitosnn.util.ResponseOutputUtil;
 import com.obitosnn.vo.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
@@ -25,9 +24,6 @@ public class HttpStatus403AccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
         log.debug("HttpStatus403AccessDeniedHandler, {}", accessDeniedException.getMessage());
 
-        response.setStatus(HttpStatus.FORBIDDEN.value());
-        String content = JSONUtil.parseObj(Result.error("操作失败", HttpStatus.FORBIDDEN.value(), accessDeniedException.getMessage())).toString();
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-        response.getWriter().write(content);
+        ResponseOutputUtil.output(response, Result.error("操作失败", HttpStatus.FORBIDDEN.value(), accessDeniedException.getMessage()));
     }
 }
