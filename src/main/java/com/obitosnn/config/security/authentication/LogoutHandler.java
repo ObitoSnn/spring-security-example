@@ -4,7 +4,6 @@ import cn.hutool.core.util.ObjectUtil;
 import com.obitosnn.config.security.authentication.cache.CacheProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +30,6 @@ public class LogoutHandler implements org.springframework.security.web.authentic
 
         log.debug("正在执行登出操作, {}", authentication);
 
-        cacheProvider.clear(((User) authentication.getPrincipal()).getUsername());
+        cacheProvider.clear(authentication.getDetails().toString());
     }
 }
