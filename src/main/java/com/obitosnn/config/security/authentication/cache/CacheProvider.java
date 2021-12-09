@@ -17,6 +17,14 @@ public interface CacheProvider<K, V> {
     K doCache(V cacheInfo);
 
     /**
+     * 生成key，与{@link #doCache(Object)}返回的key一致
+     *
+     * @param cacheInfo 缓存信息
+     * @return 返回生成的key
+     */
+    K generateKey(V cacheInfo);
+
+    /**
      * 获取缓存信息
      *
      * @param key 与缓存信息关联的key

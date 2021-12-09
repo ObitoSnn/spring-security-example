@@ -44,11 +44,16 @@ public class RedisCacheProviderImpl implements CacheProvider<String, String>, In
 
     @Override
     public String doCache(String cacheInfo) {
-        String username = TokenUtil.getInfoByToken(cacheInfo);
-        final String key = generateKey(username, cacheInfo);
+        final String key = generateKey(cacheInfo);
         redisTemplate.opsForValue().set(key, cacheInfo, TokenUtil.DEFAULT_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+        String username = TokenUtil.getInfoByToken(cacheInfo);
         log.debug(String.format("用户'%s'的token已缓存", username));
         return key;
+    }
+
+    @Override
+    public String generateKey(String cacheInfo) {
+        return generateKey(TokenUtil.getInfoByToken(cacheInfo), cacheInfo);
     }
 
     @Override
