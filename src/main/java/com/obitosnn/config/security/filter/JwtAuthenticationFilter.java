@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -35,10 +36,10 @@ import java.io.IOException;
  */
 @Slf4j
 public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-    private final CacheProvider<String> cacheProvider;
+    private final CacheProvider<String, String> cacheProvider;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager,
-                                   CacheProvider<String> cacheProvider,
+                                   CacheProvider<String, String> cacheProvider,
                                    AuthenticationSuccessHandler successHandler,
                                    AuthenticationFailureHandler failureHandler) {
         super("/**");
@@ -91,6 +92,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
             return;
         }
 
+        // 先触发认证成功回调
         successfulAuthentication(request, response, chain, authResult);
 
         // 认证成功，放行过滤连
@@ -101,7 +103,10 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         log.debug("Jwt认证Filter");
 
-        User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UsernamePasswordAuthenticationToken auth
+                = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+
+        User loginUser = (User) auth.getPrincipal();
         if (ObjectUtil.isEmpty(loginUser)) {
             throw new AuthenticationException("请先登录") {};
         }
@@ -114,7 +119,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
         String contextToken = null;
         try {
-            contextToken = cacheProvider.get(TokenUtil.getInfoByToken(token));
+            contextToken = cacheProvider.get(auth.getDetails().toString());
         } catch (Exception e) {
             throw new AuthenticationException(e.getMessage()) {};
         }

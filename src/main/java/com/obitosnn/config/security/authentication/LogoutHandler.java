@@ -16,9 +16,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Slf4j
 public class LogoutHandler implements org.springframework.security.web.authentication.logout.LogoutHandler {
-    private final CacheProvider<String> cacheProvider;
+    private final CacheProvider<String, String> cacheProvider;
 
-    public LogoutHandler(CacheProvider<String> cacheProvider) {
+    public LogoutHandler(CacheProvider<String, String> cacheProvider) {
         this.cacheProvider = cacheProvider;
     }
 

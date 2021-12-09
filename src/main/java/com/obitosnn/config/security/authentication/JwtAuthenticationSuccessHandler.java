@@ -21,9 +21,9 @@ import java.io.IOException;
  */
 @Slf4j
 public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-    private final CacheProvider<String> cacheProvider;
+    private final CacheProvider<String, String> cacheProvider;
 
-    public JwtAuthenticationSuccessHandler(CacheProvider<String> cacheProvider) {
+    public JwtAuthenticationSuccessHandler(CacheProvider<String, String> cacheProvider) {
         this.cacheProvider = cacheProvider;
     }
 

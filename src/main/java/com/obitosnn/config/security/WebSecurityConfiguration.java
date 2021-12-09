@@ -39,7 +39,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private final CacheProvider<String> cacheProvider;
+    private final CacheProvider<String, String> cacheProvider;
 
     /**
      * 登出Handler
@@ -62,7 +62,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final AuthenticationEntryPoint unAuthorityEntryPoint = new UnAuthorityEntryPoint();
     private final AccessDeniedHandler httpStatus403AccessDeniedHandler = new HttpStatus403AccessDeniedHandler();
 
-    public WebSecurityConfiguration(CacheProvider<String> cacheProvider) {
+    public WebSecurityConfiguration(CacheProvider<String, String> cacheProvider) {
         this.cacheProvider = cacheProvider;
         this.logoutSuccessHandler = new com.obitosnn.config.security.authentication.LogoutSuccessHandler();
         this.logoutHandler = new com.obitosnn.config.security.authentication.LogoutHandler(cacheProvider);
