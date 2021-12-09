@@ -26,6 +26,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.context.SecurityContextRepository;
 
 /**
  * @author ObitoSnn
@@ -67,6 +68,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final AuthenticationEntryPoint unAuthorityEntryPoint = new UnAuthorityEntryPoint();
     private final AccessDeniedHandler httpStatus403AccessDeniedHandler = new HttpStatus403AccessDeniedHandler();
 
+    private final SecurityContextRepository securityContextRepository;
+
     public WebSecurityConfiguration() {
         this.cacheProvider = new RedisCacheProviderImpl(redisTemplate);
         this.logoutSuccessHandler = new com.obitosnn.config.security.authentication.LogoutSuccessHandler();
@@ -75,6 +78,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.loginAuthenticationFailureHandler = new LoginAuthenticationFailureHandler();
         this.jwtAuthenticationSuccessHandler = new JwtAuthenticationSuccessHandler(cacheProvider);
         this.jwtAuthenticationFailureHandler = new JwtAuthenticationFailureHandler();
+        this.securityContextRepository = new InMemorySecurityContextRepository(cacheProvider);
     }
 
     @Override
@@ -99,6 +103,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .addLogoutHandler(logoutHandler);
                 })
                 .httpBasic();
+        http.setSharedObject(SecurityContextRepository.class,
+                securityContextRepository);
     }
 
     @Override
