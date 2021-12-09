@@ -98,7 +98,11 @@ public class TokenUtil {
      * @return token中的信息
      */
     public static String getInfoByToken(String token, String fieldName) {
-        return JWT.of(token).getPayload().getClaim(fieldName).toString();
+        try {
+            return JWT.of(token).getPayload().getClaim(fieldName).toString();
+        } catch (Exception e) {
+            throw new RuntimeException("token的格式不正确");
+        }
     }
 
     /**
