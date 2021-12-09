@@ -42,9 +42,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-
     private final CacheProvider<String, String> cacheProvider;
 
     /**
@@ -70,7 +67,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final SecurityContextRepository securityContextRepository;
 
-    public WebSecurityConfiguration() {
+    public WebSecurityConfiguration(RedisTemplate<String, Object> redisTemplate) {
         this.cacheProvider = new RedisCacheProviderImpl(redisTemplate);
         this.logoutSuccessHandler = new com.obitosnn.config.security.authentication.LogoutSuccessHandler();
         this.logoutHandler = new com.obitosnn.config.security.authentication.LogoutHandler(cacheProvider);

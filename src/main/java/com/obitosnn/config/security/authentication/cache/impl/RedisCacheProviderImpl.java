@@ -4,7 +4,6 @@ import cn.hutool.core.util.ObjectUtil;
 import com.obitosnn.config.security.authentication.cache.CacheProvider;
 import com.obitosnn.util.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Set;
@@ -16,16 +15,12 @@ import java.util.concurrent.TimeUnit;
  * @author ObitoSnn
  */
 @Slf4j
-public class RedisCacheProviderImpl implements CacheProvider<String, String>, InitializingBean {
+public class RedisCacheProviderImpl implements CacheProvider<String, String> {
     private final RedisTemplate<String, Object> redisTemplate;
     private final String TOKEN_SEPARATOR = "_::_";
 
     public RedisCacheProviderImpl(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
         // 连接不上redis抛异常
         redisTemplate.getConnectionFactory().getConnection().ping();
     }
