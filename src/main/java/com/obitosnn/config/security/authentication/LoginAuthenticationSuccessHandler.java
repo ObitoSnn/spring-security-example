@@ -3,6 +3,7 @@ package com.obitosnn.config.security.authentication;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.obitosnn.config.security.authentication.cache.CacheProvider;
+import com.obitosnn.util.ResponseOutputUtil;
 import com.obitosnn.util.TokenUtil;
 import com.obitosnn.vo.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -58,9 +59,6 @@ public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessH
 
         response.setHeader(X_ACCESS_TOKEN, token);
         Result<?> result = Result.ok(MapUtil.of("token", token));
-
-        String content = JSONUtil.parse(result).toString();
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-        response.getWriter().write(content);
+        ResponseOutputUtil.output(response, result);
     }
 }
