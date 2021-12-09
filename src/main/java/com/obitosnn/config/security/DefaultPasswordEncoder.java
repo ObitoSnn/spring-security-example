@@ -22,6 +22,12 @@ public class DefaultPasswordEncoder implements PasswordEncoder {
         log.debug("正在验证密码, rawPassword:{}, encodedPassword:{}",
                 rawPassword.toString(), encodedPassword) ;
 
-        return BcryptUtil.isValidate(rawPassword.toString(), encodedPassword.toString());
+        boolean validate = BcryptUtil.isValidate(rawPassword.toString(), encodedPassword.toString());
+
+        if (validate) {
+            log.debug("密码验证成功, rawPassword:{}, encodedPassword:{}",
+                    rawPassword.toString(), encodedPassword) ;
+        }
+        return validate;
     }
 }
