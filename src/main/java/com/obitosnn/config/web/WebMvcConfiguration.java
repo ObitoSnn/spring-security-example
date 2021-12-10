@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.obitosnn.config.security.filter.JwtAuthenticationFilter;
-import com.obitosnn.config.web.filter.OptionsFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -66,15 +65,6 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         corsConfiguration.addAllowedMethod("*");
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
         return new CorsFilter(urlBasedCorsConfigurationSource);
-    }
-
-    @Bean
-    public FilterRegistrationBean<OptionsFilter> optionsFilterRegistrationBean() {
-        FilterRegistrationBean<OptionsFilter> filterRegistrationBean = new FilterRegistrationBean<>();
-        OptionsFilter filter = new OptionsFilter();
-        filterRegistrationBean.setFilter(filter);
-        filter.setBeanName("optionsFilter");
-        return filterRegistrationBean;
     }
 
     /**

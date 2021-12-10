@@ -5,6 +5,7 @@ import com.obitosnn.config.security.authentication.cache.CacheProvider;
 import com.obitosnn.config.security.authentication.cache.impl.RedisCacheProviderImpl;
 import com.obitosnn.config.security.filter.JwtAuthenticationFilter;
 import com.obitosnn.config.security.filter.LoginFilter;
+import com.obitosnn.config.web.filter.OptionsFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 
 /**
@@ -67,6 +69,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final SecurityContextRepository securityContextRepository;
 
+    private final OptionsFilter optionsFilter;
+
     public WebSecurityConfiguration(RedisTemplate<String, Object> redisTemplate) {
         this.cacheProvider = new RedisCacheProviderImpl(redisTemplate);
         this.logoutSuccessHandler = new com.obitosnn.config.security.authentication.LogoutSuccessHandler();
@@ -76,6 +80,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.jwtAuthenticationSuccessHandler = new JwtAuthenticationSuccessHandler(cacheProvider);
         this.jwtAuthenticationFailureHandler = new JwtAuthenticationFailureHandler();
         this.securityContextRepository = new InMemorySecurityContextRepository(cacheProvider);
+        this.optionsFilter = new OptionsFilter();
     }
 
     @Override
@@ -99,6 +104,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                     logoutConfigurer.logoutSuccessHandler(logoutSuccessHandler)
                             .addLogoutHandler(logoutHandler);
                 })
+                .addFilterBefore(optionsFilter, SecurityContextPersistenceFilter.class)
                 .httpBasic();
         http.setSharedObject(SecurityContextRepository.class,
                 securityContextRepository);

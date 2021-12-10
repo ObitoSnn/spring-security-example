@@ -20,13 +20,13 @@ public class OptionsFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // 跨域时会首先发送一个option请求(预检请求)，这里我们给option请求直接返回正常状态
+        response.setHeader("Access-control-Allow-Origin", request.getHeader("Origin"));
+        response.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE");
+        response.setHeader("Access-Control-Allow-Headers", request.getHeader("Access-Control-Request-Headers"));
+        // 是否允许发送Cookie，默认Cookie不包括在CORS请求之中。设为true时，表示服务器允许Cookie包含在请求中。
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setStatus(HttpStatus.OK.value());
         if (request.getMethod().equals(RequestMethod.OPTIONS.name())) {
-            response.setHeader("Access-control-Allow-Origin", request.getHeader("Origin"));
-            response.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE");
-            response.setHeader("Access-Control-Allow-Headers", request.getHeader("Access-Control-Request-Headers"));
-            // 是否允许发送Cookie，默认Cookie不包括在CORS请求之中。设为true时，表示服务器允许Cookie包含在请求中。
-            response.setHeader("Access-Control-Allow-Credentials", "true");
-            response.setStatus(HttpStatus.OK.value());
             return;
         }
         filterChain.doFilter(request, response);
