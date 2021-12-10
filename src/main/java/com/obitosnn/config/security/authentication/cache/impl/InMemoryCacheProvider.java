@@ -7,9 +7,6 @@ import com.obitosnn.config.security.authentication.cache.CacheProvider;
 import com.obitosnn.util.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.stereotype.Component;
-
-import java.util.Set;
 
 /**
  * 基于内存的{@link com.obitosnn.config.security.authentication.cache.CacheProvider}实现类
@@ -17,68 +14,57 @@ import java.util.Set;
  * @author ObitoSnn
  */
 @Slf4j
-@Component
-public class InMemoryCacheProvider implements CacheProvider<String>, InitializingBean {
+public class InMemoryCacheProvider implements CacheProvider<String, String>, InitializingBean {
     /**
      * 缓存容器
      */
     private final TimedCache<String, String> timedCache = CacheUtil.newTimedCache(TokenUtil.DEFAULT_EXPIRE_TIME);
-    private final String TOKEN_SEPARATOR = "_::_";
+    private static final String TOKEN_SEPARATOR = "_::_";
 
     @Override
     public String doCache(String cacheInfo) {
+        final String key = generateKey(cacheInfo);
         String username = TokenUtil.getInfoByToken(cacheInfo);
-        String key = username + TOKEN_SEPARATOR + cacheInfo;
         timedCache.put(key, cacheInfo);
         log.debug(String.format("用户'%s'的token已缓存", username));
-        return username;
+        return key;
+    }
+
+    @Override
+    public String generateKey(String cacheInfo) {
+        return TokenUtil.getInfoByToken(cacheInfo) + TOKEN_SEPARATOR + cacheInfo;
     }
 
     @Override
     public String get(String key) {
-        Set<String> keys = timedCache.keySet();
-        String result = null;
-        for (String s : keys) {
-            if (s.contains(key)) {
-                result = s.substring(s.indexOf(TOKEN_SEPARATOR) + TOKEN_SEPARATOR.length());
-                break;
-            }
+        if (ObjectUtil.isEmpty(key)) {
+            throw new RuntimeException("key不能为空");
         }
+        String result = timedCache.get(key);
+        String token = key.substring(key.indexOf(TOKEN_SEPARATOR) + TOKEN_SEPARATOR.length());
+        String username = TokenUtil.getInfoByToken(token);
         if (ObjectUtil.isNotEmpty(result)) {
-            log.debug(String.format("获取用户'%s'的token", key));
+            log.debug(String.format("获取用户'%s'的token", username));
+            result = token;
+        } else {
+            throw new RuntimeException(String.format("用户'%s'的缓存的token已被删除", username));
         }
         return result;
     }
 
     @Override
     public void update(String expect, String update) {
+        final String key = generateKey(expect);
         String username = TokenUtil.getInfoByToken(expect);
-        Set<String> keys = timedCache.keySet();
-        boolean hasToken = false;
-        for (String key : keys) {
-            if (key.contains(username)) {
-                hasToken = true;
-                break;
-            }
-        }
-        if (!hasToken) {
-            throw new RuntimeException(String.format("未用户'%s'的token", username));
-        }
-        String key = username + TOKEN_SEPARATOR + expect;
+        // 校验token是否存在
+        get(key);
         timedCache.put(key, update);
         log.debug(String.format("用户'%s'的token已更新", username));
     }
 
     @Override
     public void clear(String key) {
-        String realKey = null;
-        for (String s : timedCache.keySet()) {
-            if (s.contains(key)) {
-                realKey = s;
-                break;
-            }
-        }
-        timedCache.remove(realKey);
+        timedCache.remove(key);
         log.debug(String.format("用户'%s'的token已清除", key));
     }
 
@@ -90,6 +76,6 @@ public class InMemoryCacheProvider implements CacheProvider<String>, Initializin
     @Override
     public void afterPropertiesSet() throws Exception {
         //开启定时清除缓存任务
-        timedCache.schedulePrune(TokenUtil.DEFAULT_EXPIRE_TIME);
+        timedCache.schedulePrune(60L * 1000L + TokenUtil.DEFAULT_EXPIRE_TIME);
     }
 }

@@ -2,7 +2,7 @@ package com.obitosnn.config.security;
 
 import com.obitosnn.config.security.authentication.*;
 import com.obitosnn.config.security.authentication.cache.CacheProvider;
-import com.obitosnn.config.security.authentication.cache.impl.RedisCacheProviderImpl;
+import com.obitosnn.config.security.authentication.cache.impl.InMemoryCacheProvider;
 import com.obitosnn.config.security.filter.JwtAuthenticationFilter;
 import com.obitosnn.config.security.filter.LoginFilter;
 import com.obitosnn.config.web.filter.OptionsFilter;
@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -71,8 +70,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final OptionsFilter optionsFilter;
 
-    public WebSecurityConfiguration(RedisTemplate<String, Object> redisTemplate) {
-        this.cacheProvider = new RedisCacheProviderImpl(redisTemplate);
+    public WebSecurityConfiguration() {
+        this.cacheProvider = new InMemoryCacheProvider();
         this.logoutSuccessHandler = new com.obitosnn.config.security.authentication.LogoutSuccessHandler();
         this.logoutHandler = new com.obitosnn.config.security.authentication.LogoutHandler(cacheProvider);
         this.loginAuthenticationSuccessHandler = new LoginAuthenticationSuccessHandler(cacheProvider);
