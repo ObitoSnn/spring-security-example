@@ -48,7 +48,9 @@ public class InMemorySecurityContextRepository implements SecurityContextReposit
     public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
         HttpServletRequest request = requestResponseHolder.getRequest();
         String token = request.getHeader(LoginAuthenticationSuccessHandler.X_ACCESS_TOKEN);
-        SecurityContext securityContext = null;
+        if (ObjectUtil.isEmpty(token)) {
+            return TIMED_CACHE.get(TEMP_KEY);
+        }
 
         final AntPathRequestMatcher loginRequestMatcher = new AntPathRequestMatcher("/login", HttpMethod.POST.name());
         if (loginRequestMatcher.matches(request)) {
@@ -76,6 +78,7 @@ public class InMemorySecurityContextRepository implements SecurityContextReposit
             return validate ? TIMED_CACHE.get(key) : TIMED_CACHE.get(TEMP_KEY);
         }
 
+        SecurityContext securityContext = null;
         // 认为已经携带token
         securityContext = TIMED_CACHE.get(key);
         if (ObjectUtil.isNotEmpty(securityContext)) {
