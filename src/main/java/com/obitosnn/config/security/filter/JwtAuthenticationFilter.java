@@ -95,7 +95,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
         // 先触发认证成功回调
         successfulAuthentication(request, response, chain, authResult);
 
-        // 认证成功，放行过滤连
+        // 认证成功，放行过滤链
         chain.doFilter(request, response);
     }
 
