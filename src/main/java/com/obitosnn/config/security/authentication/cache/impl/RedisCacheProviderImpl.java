@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class RedisCacheProviderImpl implements CacheProvider<String, String> {
     private final RedisTemplate<String, Object> redisTemplate;
-    private final String TOKEN_SEPARATOR = "_::_";
+    private static final String TOKEN_SEPARATOR = "_::_";
 
     public RedisCacheProviderImpl(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
